@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>About — GraphQL Profile</title>
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <header class="top">
+      <h1>About this Project</h1>
+      <button onclick="history.back()">Go Back</button>
+    </header>
+
+    <!-- 1) Project Overview -->
+    <section class="card" aria-labelledby="overview">
+      <h2 id="overview">1) Project Overview</h2>
+      <p>
+        This is a minimal GraphQL Profile web app. After a successful login (JWT), it fetches your data from the
+        GraphQL API and renders a profile with three core sections (user info & totals, audit ratio, categorized XP)
+        plus a dedicated statistics area with SVG-based charts.
+      </p>
+    </section>
+
+    <div style="height:1rem"></div>
+
+    <!-- 2) Tech Stack -->
+    <section class="card" aria-labelledby="stack">
+      <h2 id="stack">2) Tech Stack</h2>
+      <div class="grid">
+        <div>
+          <strong>Frontend</strong>
+          <ul class="list">
+            <li>Vanilla HTML, CSS, JavaScript</li>
+            <li>SVG for charts (no external chart libs)</li>
+            <li>JWT stored in <code>localStorage</code></li>
+          </ul>
+        </div>
+        <div>
+        </div>
+      </div>
+    </section>
+
+    <div style="height:1rem"></div>
+
+    <!-- 3) Features -->
+    <section class="card" aria-labelledby="features">
+      <h2 id="features">3) Features</h2>
+      <ul class="list">
+        <li>Login with JWT, graceful error handling for invalid credentials</li>
+        <li>Three required profile sections sourced directly from GraphQL</li>
+        <li>SVG charts: XP by Activity (bar), XP Progression (line), and Audit Ratio (Pie)</li>
+        <li>Logout clears auth and returns to login</li>
+      </ul>
+    </section>
+
+    <div style="height:1rem"></div>
+
+    <!-- 4) GraphQL queries -->
+    <section class="card" aria-labelledby="graphql">
+      <h2 id="graphql">4) GraphQL queries</h2>
+      <p>Types of queries used in the project:</p>
+
+      <strong>Normal</strong>
+      <pre><code>{ user { id login email firstName lastName } }</code></pre>
+      <br>
+      <strong>Nested</strong>
+      <pre><code>{
+      transaction(
+        where: {
+          _and: [
+            { type: { _eq: "xp" } },
+            { path: { _like: "/bahrain/bh-module/checkpoint/%" } },
+            { createdAt: { _gt: "${oldestDate}" } }
+          ]
+        }
+      ) {
+        amount
+        createdAt
+        object { name type }
+      }
+    }</code></pre>
+      <br>
+      <strong>arguments</strong>
+      <pre><code>{
+    transaction(
+      where: {
+        _and: [
+          { type: { _eq: "xp" } },
+          { path: { _like: "/bahrain/bh-module/%" } },
+          { path: { _nlike: "/bahrain/bh-module/checkpoint/%" } }
+        ]
+      },
+      order_by: { createdAt: asc },
+      limit: 1
+    ) {
+      createdAt
+    }
+  }</code></pre>
+
+    </section>
+
+    <div style="height:1rem"></div>
+
+
+  </div>
+</body>
+
+</html>

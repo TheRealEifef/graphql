@@ -1,0 +1,220 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #0e0e0e;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  /* Increased width */
+  margin-bottom: 20px;
+}
+
+input,
+button {
+  margin-top: 10px;
+  padding: 10px;
+  /* Added padding for better spacing */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  /* Rounded corners */
+}
+
+.logout-container {
+  position: absolute;
+  /* Position it relative to the nearest positioned ancestor */
+  top: 20px;
+  /* Distance from the top */
+  right: 20px;
+  /* Distance from the right */
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #007bff;
+  /* Button color */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  /* Padding for the button */
+  border-radius: 4px;
+  /* Rounded corners */
+  cursor: pointer;
+  box-shadow: 0 0 8px rgb(159, 142, 255);
+}
+
+button:hover {
+  background-color: #0056b3;
+  /* Darker shade on hover */
+}
+
+#userInfo {
+  display: ruby;
+  color: white;
+}
+
+.graphs-container {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  overflow: visible;
+}
+
+.graph-wrapper {
+  max-width: 650px;
+  overflow: auto;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.graph-wrapper svg {
+  display: block;
+  min-width: 100%;
+  overflow: auto;
+}
+
+svg {
+  flex: 1;
+  /* Allow SVGs to grow equally */
+}
+
+svg rect:hover {
+  fill: rgb(255, 255, 255);
+}
+
+.page-wrapper {
+  padding: 0 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.graphs-container h5 {
+  margin: 0;
+  padding-bottom: 10px;
+  color: #ccc;
+  font-weight: normal;
+  font-size: 16px;
+}
+
+:root {
+  --card-bg: #1a1a1a;
+  --text-light: #e0e0e0;
+  --text-dim: #aaa;
+  --accent-yellow: #ffc107;
+}
+
+.card {
+  margin-top: 35px;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 8px rgb(159, 142, 255);
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  scrollbar-color: rgb(159, 142, 255) #333;
+}
+
+.card svg {
+  display: block;
+  height: auto;
+  overflow: auto;
+}
+
+.cardUser {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 70px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 8px rgb(159, 142, 255);
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+}
+
+.user-container {
+  display: flex;
+  width: -webkit-fill-available;
+  gap: 10%;
+}
+
+table {
+  color: #fff;
+  /* or any light color */
+}
+
+.small {
+  float: right;
+}
+
+.tableCard {
+  margin-top: 35px;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 8px rgb(159, 142, 255);
+  display: flex;
+  flex-direction: column;
+  border-collapse: collapse;
+  overflow-y: scroll;
+  overflow-x: auto;
+  max-height: 400px;
+  scrollbar-color: rgb(159, 142, 255) #333;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-light);
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.error-message,
+h2,
+#errorMsg {
+  color: white;
+
+}
+
+h1,
+p,
+li,
+strong,
+pre,
+code {
+  color: #d46dcc;
+}
+
+.container {
+  text-align: center;
+  width: min-content;
+}
+
+.error-message a {
+  color: #007bff;
+
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Profile</title>
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="logout-container">
+      <button onclick="logout()">Logout</button>
+    </div>
+    <br />
+    <div class="page-wrapper">
+      <div class="graphs-container">
+        <div class="cardUser">
+          <div id="userInfo">
+            <h1 id="fullName"></h1>
+            <small class="small" id="username"></small>
+            <div class="user-container">
+              <div class="card">
+              <h5>Total Projects</h5>
+              <h1 id="totalProjects"></h1>
+            </div>
+            <div class="card">
+              <h5>Total Exercises</h5>
+              <h1 id="totalExcercises"></h1>
+            </div>
+              <div class="card">
+                <h5>Total Xp</h5>
+                <h1 id="totalXp"></h1>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h5>Audit Ratio</h5>
+          <div class="graph-wrapper">
+            <svg id="graph3"></svg>
+            <h2 id="ratio"></h2>
+          </div>
+        </div>
+      </div>
+      <div class="graphs-container">
+        <div class="tableCard">
+          <h5>Categorized XP</h5>
+          <table id="xpTable">
+            <thead>
+              <tr>
+                <th style="padding: 8px">Project</th>
+                <th style="padding: 8px">XP</th>
+                <th style="padding: 8px">Date</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h5>XP by Activity</h5>
+          <div class="graph-wrapper">
+            <svg id="xpBarChart"></svg>
+          </div>
+          <div class="legend" id="xpBarLegend"></div>
+        </div>
+
+        <div class="card">
+          <h5>XP progression</h5>
+          <div class="graph-wrapper">
+            <svg id="graph2"></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="js/graphql.js"></script>
+    <script src="js/profile.js"></script>
+  </body>
+</html>
