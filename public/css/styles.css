@@ -226,6 +226,7 @@ h5 {
 
 text {
   font-weight: bold;
+  fill: #ffffffff;
 }
 
 .error-container {
