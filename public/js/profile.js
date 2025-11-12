@@ -152,7 +152,7 @@ function drawXpBarChart(entries) {
   // use CSS palette for cohesive chart coloring
   const projectsColor = getCssVar("--primary", "#ff7a59"); // main bar color (coral)
   const fallbackColor = getCssVar("--accent", "#ffd166"); // secondary (sunny)
-  const textColor = getCssVar("--text", "#10323a");       // main text (deep sea)
+  const textColor = getCssVar("--text", "#ffffffff");       // main text (deep sea)
   const mutedText = getCssVar("--muted", "#6aa5a1");      // muted labels (sea-green)
   const gridColor = getCssVar("--muted-2", "rgba(16,50,58,0.06)");
   const axisColor = getCssVar("--muted", "#6aa5a1");
@@ -503,9 +503,8 @@ function drawXpProgression() {
   // palette-aware colors
   const gridColor = getCssVar("--muted-2", "rgba(16,50,58,0.06)");
   const axisColor = getCssVar("--muted", "#6aa5a1");
-  const labelColor = getCssVar("--muted", "#6aa5a1");
-  const xLabelColor = getCssVar("--muted", "#6aa5a1");
-  const smallTextColor = getCssVar("--text", "#10323a");
+  const labelColor = getCssVar("--muted", "#ffffffff");
+  const xLabelColor = getCssVar("--muted", "#ffffffff");
 
   // Gridlines & Labels
   for (let i = 0; i <= 5; i++) {
