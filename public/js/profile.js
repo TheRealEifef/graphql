@@ -26,10 +26,10 @@ async function loadProfile() {
 
 function formatXp(amount) {
   if (amount < 1000) {
-    return `${Math.round(amount)} B`;
+    return `${Math.ceil(amount)} B`;
   }
   const kb = amount / 1000;
-  return kb >= 100 ? `${Math.round(kb)} kB` : `${kb.toFixed(1)} kB`;
+  return kb >= 100 ? `${Math.ceil(kb)} kB` : `${Math.ceil(kb)} kB`;
 }
 
 function formatRatio(amount) {
@@ -134,13 +134,28 @@ async function drawXpTable() {
   drawXpBarChart(data);
 }
 
+// helper to read CSS vars with fallback
+function getCssVar(varName, fallback) {
+	// ensure computed styles are available
+	try {
+		const val = getComputedStyle(document.documentElement).getPropertyValue(varName);
+		if (val && val.trim()) return val.trim();
+	} catch (e) {}
+	return fallback;
+}
+
 function drawXpBarChart(entries) {
   const svg = document.getElementById("xpBarChart");
   if (!svg) return;
 
   const legend = document.getElementById("xpBarLegend");
-  const projectsColor = "#a26cb8";
-  const fallbackColor = "#607d8b";
+  // use CSS palette for cohesive chart coloring
+  const projectsColor = getCssVar("--primary", "#ff7a59"); // main bar color (coral)
+  const fallbackColor = getCssVar("--accent", "#ffd166"); // secondary (sunny)
+  const textColor = getCssVar("--text", "#10323a");       // main text (deep sea)
+  const mutedText = getCssVar("--muted", "#6aa5a1");      // muted labels (sea-green)
+  const gridColor = getCssVar("--muted-2", "rgba(16,50,58,0.06)");
+  const axisColor = getCssVar("--muted", "#6aa5a1");
 
   if (legend) {
     legend.innerHTML = `
@@ -198,7 +213,7 @@ function drawXpBarChart(entries) {
     gridLine.setAttribute("y1", y);
     gridLine.setAttribute("x2", width - margin.right);
     gridLine.setAttribute("y2", y);
-    gridLine.setAttribute("stroke", "#333");
+    gridLine.setAttribute("stroke", gridColor);
     gridLine.setAttribute("stroke-dasharray", "4 2");
     svg.appendChild(gridLine);
 
@@ -209,7 +224,7 @@ function drawXpBarChart(entries) {
     label.setAttribute("x", margin.left - 12);
     label.setAttribute("y", y + 4);
     label.setAttribute("font-size", "12px");
-    label.setAttribute("fill", "#ccc");
+    label.setAttribute("fill", mutedText);
     label.setAttribute("text-anchor", "end");
     label.textContent = formatXp(value);
     svg.appendChild(label);
@@ -223,7 +238,7 @@ function drawXpBarChart(entries) {
   axisX.setAttribute("y1", height - margin.bottom);
   axisX.setAttribute("x2", width - margin.right);
   axisX.setAttribute("y2", height - margin.bottom);
-  axisX.setAttribute("stroke", "#555");
+  axisX.setAttribute("stroke", axisColor);
   svg.appendChild(axisX);
 
   const axisY = document.createElementNS(
@@ -234,7 +249,7 @@ function drawXpBarChart(entries) {
   axisY.setAttribute("y1", margin.top);
   axisY.setAttribute("x2", margin.left);
   axisY.setAttribute("y2", height - margin.bottom);
-  axisY.setAttribute("stroke", "#555");
+  axisY.setAttribute("stroke", axisColor);
   svg.appendChild(axisY);
 
   data.forEach((item, index) => {
@@ -270,7 +285,7 @@ function drawXpBarChart(entries) {
     valueText.setAttribute("y", y - 6);
     valueText.setAttribute("text-anchor", "middle");
     valueText.setAttribute("font-size", "12px");
-    valueText.setAttribute("fill", "#ccc");
+    valueText.setAttribute("fill", textColor);
     valueText.textContent = formatXp(item.total);
     svg.appendChild(valueText);
 
@@ -283,7 +298,7 @@ function drawXpBarChart(entries) {
     label.setAttribute("x", labelX);
     label.setAttribute("y", labelY);
     label.setAttribute("font-size", "12px");
-    label.setAttribute("fill", "#ccc");
+    label.setAttribute("fill", mutedText);
     label.setAttribute("text-anchor", "end");
     label.setAttribute(
       "transform",
@@ -295,112 +310,163 @@ function drawXpBarChart(entries) {
 }
 
 function drawDoneRecievedChart(gave, received, ratioT) {
-  console.log("Drawing Done/Received Chart:", { gave, received, ratioT });
   const svg = document.getElementById("graph3");
-  const ratioText = document.getElementById("ratio");
   svg.innerHTML = "";
 
-  const size = 240;
-  const center = size / 2;
-  const radius = center - 12;
-  const svgNS = "http://www.w3.org/2000/svg";
+  // Increased width from 340 to 460
+  const width = 460;
+  const height = 260;
+  svg.setAttribute("width", width);
+  svg.setAttribute("height", height);
 
-  svg.setAttribute("width", size);
-  svg.setAttribute("height", size + 20);
-  svg.setAttribute("viewBox", "0 0 " + size + " " + size);
+  // Adjusted margins for wider chart
+  const margin = { top: 40, right: 100, bottom: 60, left: 80 };
+  const chartWidth = width - margin.left - margin.right;
+  const barHeight = 24;
 
-  const data = [
-    { label: "Done", value: Math.max(0, gave), color: "#007bff" },
-    { label: "Received", value: Math.max(0, received), color: "rgb(167, 84, 140)" },
+  // defs / gradients (kept simple)
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  const makeGrad = (id, a, b) => {
+    const g = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+    g.setAttribute("id", id);
+    g.setAttribute("x1", "0%");
+    g.setAttribute("x2", "100%");
+    g.setAttribute("y1", "0%");
+    g.setAttribute("y2", "0%");
+    const s1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+    s1.setAttribute("offset", "0%");
+    s1.setAttribute("stop-color", a);
+    const s2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+    s2.setAttribute("offset", "100%");
+    s2.setAttribute("stop-color", b);
+    g.appendChild(s1);
+    g.appendChild(s2);
+    defs.appendChild(g);
+  };
+  // pick gradient stops from palette for good contrast
+  const start = getCssVar("--primary", "#ff7a59");
+  const end = getCssVar("--accent", "#ffd166");
+  makeGrad("doneGrad", start, end);
+  makeGrad("receivedGrad", start, end);
+  svg.appendChild(defs);
+
+  const total = Math.max(gave, received, 1);
+  const bars = [
+    { label: "Done", value: gave, gradient: "url(#doneGrad)" },
+    { label: "Received", value: received, gradient: "url(#receivedGrad)" }
   ];
 
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const textColor = getCssVar("--text", "#10323a");
+  const mutedText = getCssVar("--muted", "#6aa5a1");
+  const trackFill = getCssVar("--muted-2", "rgba(16,50,58,0.06)");
 
-  let currentAngle = -Math.PI / 2;
-  data.forEach((segment) => {
-    if (segment.value <= 0) {
-      return;
-    }
+  bars.forEach((bar, i) => {
+    const y = margin.top + i * (barHeight + 20);
 
-    const sliceAngle = (segment.value / total) * Math.PI * 2;
-    const startAngle = currentAngle;
-    const endAngle = currentAngle + sliceAngle;
-    currentAngle = endAngle;
+    // Background track
+    const bgBar = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    bgBar.setAttribute("x", margin.left);
+    bgBar.setAttribute("y", y);
+    bgBar.setAttribute("width", chartWidth);
+    bgBar.setAttribute("height", barHeight);
+    bgBar.setAttribute("rx", barHeight / 2);
+    bgBar.setAttribute("fill", trackFill);
+    svg.appendChild(bgBar);
 
-    const path = document.createElementNS(svgNS, "path");
-    path.setAttribute("d", describeSlice(center, center, radius, startAngle, endAngle));
-    path.setAttribute("fill", segment.color);
-    svg.appendChild(path);
+    // Value bar (ensure a small minimum width for visibility)
+    const valueWidth = Math.max((bar.value / total) * chartWidth, bar.value > 0 ? 28 : 0);
+    const valueBar = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    valueBar.setAttribute("x", margin.left);
+    valueBar.setAttribute("y", y);
+    valueBar.setAttribute("width", valueWidth);
+    valueBar.setAttribute("height", barHeight);
+    valueBar.setAttribute("rx", barHeight / 2);
+    valueBar.setAttribute("fill", bar.gradient);
+    svg.appendChild(valueBar);
 
-    const midAngle = startAngle + sliceAngle / 2;
-    const labelRadius = radius * 0.6;
-    const label = document.createElementNS(svgNS, "text");
-    label.setAttribute("x", center + labelRadius * Math.cos(midAngle));
-    label.setAttribute("y", center + labelRadius * Math.sin(midAngle));
-    label.setAttribute("fill", "#fff");
-    label.setAttribute("font-size", "14px");
-    label.setAttribute("text-anchor", "middle");
+    // Left label
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.setAttribute("x", margin.left - 12);
+    label.setAttribute("y", y + barHeight / 2);
+    label.setAttribute("text-anchor", "end");
     label.setAttribute("dominant-baseline", "middle");
-    label.textContent = formatRatio(segment.value);
+    label.setAttribute("fill", textColor);
+    label.setAttribute("font-size", "14px");
+    label.textContent = bar.label;
     svg.appendChild(label);
+
+    // Determine where to place the value text so it doesn't overflow:
+    const valueTextStr = formatRatio(bar.value);
+
+    // Measure text width by temporarily adding hidden text to SVG
+    const measure = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    measure.setAttribute("x", 0);
+    measure.setAttribute("y", 0);
+    measure.setAttribute("font-size", "14px");
+    measure.setAttribute("visibility", "hidden");
+    measure.textContent = valueTextStr;
+    svg.appendChild(measure);
+    let textWidth = 0;
+    try {
+      textWidth = measure.getBBox().width;
+    } catch (e) {
+      // fallback if getBBox fails
+      textWidth = valueTextStr.length * 8;
+    }
+    svg.removeChild(measure);
+
+    // If bar is wide enough, place the text centered inside the bar; otherwise place it to the right but clamped to available space
+    if (valueWidth >= textWidth + 12) {
+      const inside = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      inside.setAttribute("x", margin.left + valueWidth / 2);
+      inside.setAttribute("y", y + barHeight / 2);
+      inside.setAttribute("text-anchor", "middle");
+      inside.setAttribute("dominant-baseline", "middle");
+      inside.setAttribute("font-size", "14px");
+      inside.setAttribute("fill", textColor);
+      inside.textContent = valueTextStr;
+      svg.appendChild(inside);
+    } else {
+      // place outside but ensure it does not overflow right margin
+      const paddingRight = 8;
+      let xPos = margin.left + valueWidth + 12;
+      // clamp x so the text doesn't go past the right edge of the chart area
+      const maxX = width - margin.right - textWidth;
+      if (xPos > maxX) xPos = Math.max(margin.left + valueWidth + 6, maxX);
+      const outside = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      outside.setAttribute("x", xPos);
+      outside.setAttribute("y", y + barHeight / 2);
+      outside.setAttribute("text-anchor", "start");
+      outside.setAttribute("dominant-baseline", "middle");
+      outside.setAttribute("font-size", "14px");
+      outside.setAttribute("fill", textColor);
+      outside.textContent = valueTextStr;
+      svg.appendChild(outside);
+    }
   });
 
-
-  const legendY = size - 18;
-  data.forEach((segment, index) => {
-    const offsetX = 30 + index * 120;
-
-    const swatch = document.createElementNS(svgNS, "rect");
-    swatch.setAttribute("x", offsetX);
-    swatch.setAttribute("y", legendY + 10);
-    swatch.setAttribute("width", 12);
-    swatch.setAttribute("height", 12);
-    swatch.setAttribute("rx", 2);
-    swatch.setAttribute("fill", segment.color);
-    svg.appendChild(swatch);
-
-    const legendText = document.createElementNS(svgNS, "text");
-    legendText.setAttribute("x", offsetX + 18);
-    legendText.setAttribute("y", legendY + 20);
-    legendText.setAttribute("fill", "#fff");
-    legendText.setAttribute("font-size", "12px");
-    legendText.setAttribute("dominant-baseline", "middle");
-    legendText.textContent = segment.label;
-    svg.appendChild(legendText);
-  });
-
+  // Ratio display + message (bottom)
   const roundedRatio = (ratioT || 0).toFixed(1);
-  let message = "You can do better!";
-  if (ratioT > 1.3) {
-    message = "Great job!";
-  } else if (ratioT > 1.1) {
-    message = "Looking good!";
-  }
+  const ratioDisplay = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  ratioDisplay.setAttribute("x", width / 2);
+  ratioDisplay.setAttribute("y", height - margin.bottom + 10);
+  ratioDisplay.setAttribute("text-anchor", "middle");
+  ratioDisplay.setAttribute("fill", textColor);
+  ratioDisplay.setAttribute("font-size", "32px");
+  ratioDisplay.textContent = roundedRatio;
+  svg.appendChild(ratioDisplay);
 
-  ratioText.innerHTML = `
-    <span style="font-size: 48px; color:rgb(255, 255, 255);">${roundedRatio}</span><br>
-    <span style="color:rgb(255, 255, 255); font-size: 16px;">${message}</span>
-  `;
-
-  function describeSlice(cx, cy, r, startAngle, endAngle) {
-    const start = pointOnCircle(cx, cy, r, startAngle);
-    const end = pointOnCircle(cx, cy, r, endAngle);
-    const largeArcFlag = endAngle - startAngle > Math.PI ? 1 : 0;
-
-    return [
-      "M " + cx + " " + cy,
-      "L " + start.x + " " + start.y,
-      "A " + r + " " + r + " 0 " + largeArcFlag + " 1 " + end.x + " " + end.y,
-      "Z",
-    ].join(" ");
-  }
-
-  function pointOnCircle(cx, cy, r, angle) {
-    return {
-      x: cx + r * Math.cos(angle),
-      y: cy + r * Math.sin(angle),
-    };
-  }
+  const messageDisplay = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  messageDisplay.setAttribute("x", width / 2);
+  messageDisplay.setAttribute("y", height - margin.bottom + 36);
+  messageDisplay.setAttribute("text-anchor", "middle");
+  messageDisplay.setAttribute("fill", '#103332');
+  messageDisplay.setAttribute("font-size", "14px");
+  let msg = "You can do better!";
+  if (ratioT > 1.3) msg = "Great job!";
+  else if (ratioT > 1.1) msg = "Looking good!";
+  messageDisplay.textContent = msg;
+  svg.appendChild(messageDisplay);
 }
 
 function drawXpProgression() {
@@ -418,7 +484,7 @@ function drawXpProgression() {
   document.getElementById("totalExcercises").textContent = totalExercise;
 
   const totalXP = data.at(-1)?.total || 0;
-  document.getElementById("totalXp").textContent = `${(totalXP / 1000).toFixed(1)} KB`;
+  document.getElementById("totalXp").textContent = `${Math.round(totalXP / 1000)} KB`;
 
   const svg = document.getElementById("graph2");
   svg.innerHTML = "";
@@ -434,6 +500,13 @@ function drawXpProgression() {
   const xScale = (width - 2 * padding) / (data.length - 1);
   const yScale = (height - 2 * padding) / maxXP;
 
+  // palette-aware colors
+  const gridColor = getCssVar("--muted-2", "rgba(16,50,58,0.06)");
+  const axisColor = getCssVar("--muted", "#6aa5a1");
+  const labelColor = getCssVar("--muted", "#6aa5a1");
+  const xLabelColor = getCssVar("--muted", "#6aa5a1");
+  const smallTextColor = getCssVar("--text", "#10323a");
+
   // Gridlines & Labels
   for (let i = 0; i <= 5; i++) {
     const yVal = (maxXP / 5) * i;
@@ -445,7 +518,7 @@ function drawXpProgression() {
     line.setAttribute("y1", y);
     line.setAttribute("x2", width - padding);
     line.setAttribute("y2", y);
-    line.setAttribute("stroke", "#ccc");
+    line.setAttribute("stroke", gridColor);
     line.setAttribute("stroke-dasharray", "4 2");
     svg.appendChild(line);
 
@@ -458,7 +531,7 @@ function drawXpProgression() {
     label.setAttribute("y", y + 5);
     label.setAttribute("text-anchor", "end");
     label.setAttribute("font-size", "12px");
-    label.setAttribute("fill", "#fff");
+    label.setAttribute("fill", labelColor);
     label.textContent = `${(yVal / 1000).toFixed(1)} kB`;
     svg.appendChild(label);
   }
@@ -473,7 +546,7 @@ function drawXpProgression() {
     text.setAttribute("y", height - padding + 25);
     text.setAttribute("text-anchor", "middle");
     text.setAttribute("font-size", "12px");
-    text.setAttribute("fill", "#555");
+    text.setAttribute("fill", xLabelColor);
     text.textContent = d.date;
     svg.appendChild(text);
   });
@@ -499,7 +572,7 @@ function drawXpProgression() {
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("d", pathD);
-  path.setAttribute("stroke", "#2196f3");
+  path.setAttribute("stroke", getCssVar("--primary", "#ff7a59"));
   path.setAttribute("stroke-width", 2.5);
   path.setAttribute("fill", "none");
   svg.appendChild(path);
@@ -516,7 +589,7 @@ function drawXpProgression() {
     circle.setAttribute("cx", x);
     circle.setAttribute("cy", y);
     circle.setAttribute("r", 4);
-    circle.setAttribute("fill", "#a26cb8");
+    circle.setAttribute("fill", getCssVar("--accent", "#ffd166"));
     svg.appendChild(circle);
 
     const tooltip = document.createElementNS(
@@ -533,7 +606,7 @@ function drawXpProgression() {
   xAxis.setAttribute("y1", height - padding);
   xAxis.setAttribute("x2", width - padding);
   xAxis.setAttribute("y2", height - padding);
-  xAxis.setAttribute("stroke", "#333");
+  xAxis.setAttribute("stroke", axisColor);
   svg.appendChild(xAxis);
 
   // Y axis line
@@ -542,7 +615,7 @@ function drawXpProgression() {
   yAxis.setAttribute("y1", padding);
   yAxis.setAttribute("x2", padding);
   yAxis.setAttribute("y2", height - padding);
-  yAxis.setAttribute("stroke", "#333");
+  yAxis.setAttribute("stroke", axisColor);
   svg.appendChild(yAxis);
 }
 
