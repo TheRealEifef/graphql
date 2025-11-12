@@ -357,7 +357,6 @@ function drawDoneRecievedChart(gave, received, ratioT) {
   ];
 
   const textColor = getCssVar("--text", "#10323a");
-  const mutedText = getCssVar("--muted", "#6aa5a1");
   const trackFill = getCssVar("--muted-2", "rgba(16,50,58,0.06)");
 
   bars.forEach((bar, i) => {
@@ -503,8 +502,8 @@ function drawXpProgression() {
   // palette-aware colors
   const gridColor = getCssVar("--muted-2", "rgba(16,50,58,0.06)");
   const axisColor = getCssVar("--muted", "#6aa5a1");
-  const labelColor = getCssVar("--muted", "#ffffffff");
-  const xLabelColor = getCssVar("--muted", "#ffffffff");
+  const labelColor = getCssVar("--text", "#ffffffff");
+  const xLabelColor = getCssVar("--text", "#ffffffff");
 
   // Gridlines & Labels
   for (let i = 0; i <= 5; i++) {
